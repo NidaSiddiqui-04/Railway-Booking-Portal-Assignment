@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+
+generator client {
+provider = "prisma-client-js"
+}
+
+
+datasource db {
+provider = "sqlite"
+url = env("DATABASE_URL")
+}
+
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  phone     String
+  password  String
+  role      Role     @default(CLIENT)
+  status    Status   @default(ACTIVE)
+  bookings  Booking[]
+  createdAt DateTime @default(now())
+}
+
+model Station {
+  id          Int     @id @default(autoincrement())
+  stationCode String  @unique
+  stationName String
+  city        String
+  status      Status  @default(ACTIVE)
+  routes      Route[]
+}
+
+model Train {
+  id          Int     @id @default(autoincrement())
+  trainNumber String  @unique
+  trainName   String
+  status      Status  @default(ACTIVE)
+  routes      Route[]
+  coaches     Coach[]
+  seats       SeatAvailability[]
+  bookings    Booking[]
+}
+
+model Route {
+  id            Int      @id @default(autoincrement())
+  trainId       Int
+  stationId     Int
+  arrivalTime   String
+  departureTime String
+  distance      Int
+
+  train   Train   @relation(fields: [trainId], references: [id])
+  station Station @relation(fields: [stationId], references: [id])
+}
+
+model Coach {
+  id           Int      @id @default(autoincrement())
+  trainId      Int
+  classType    ClassType
+  seatCapacity Int
+
+  train Train @relation(fields: [trainId], references: [id])
+}
+
+model SeatAvailability {
+  id             Int      @id @default(autoincrement())
+  trainId        Int
+  date           DateTime
+  classType      ClassType
+  availableSeats Int
+
+  train Train @relation(fields: [trainId], references: [id])
+}
+
+model Booking {
+  id          Int           @id @default(autoincrement())
+  pnr         String        @unique
+  userId      Int
+  trainId     Int
+  journeyDate DateTime
+  classType   ClassType
+  status      BookingStatus @default(CONFIRMED)
+  passengers  Passenger[]
+  createdAt   DateTime      @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  train Train @relation(fields: [trainId], references: [id])
+}
+
+model Passenger {
+  id        Int     @id @default(autoincrement())
+  bookingId Int
+  name      String
+  age       Int
+  gender    String
+  seatNo    String
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  CLIENT
+}
+
+enum Status {
+  ACTIVE
+  BLOCKED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+enum ClassType {
+  SL
+  AC
+  GEN
+}
