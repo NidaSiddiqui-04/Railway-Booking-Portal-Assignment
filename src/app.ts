@@ -3,7 +3,8 @@ import cors from "cors";
 import prisma from "./config/prisma.js";
 import authRoutes from "./routes/auth.routes.js";
 import { authenticate } from "./middleware/auth.middleware.js";
-
+import stationRoutes from './routes/station.routes.js'
+import trainRoutes from "./routes/train.routes.js";
 
 
 const app = express();
@@ -21,6 +22,7 @@ app.get("/db-test", async (_req, res) => {
   res.json(users);
 });
 
+app.use("/api/stations", stationRoutes);
 app.use("/api/auth", authRoutes);
 
 
@@ -28,5 +30,9 @@ app.use("/api/auth", authRoutes);
 app.get("/protected", authenticate, (req, res) => {
   res.json({ message: "You are authorized 🎉" });
 });
+
+
+app.use("/api/trains", trainRoutes);
+
 
 export default app;

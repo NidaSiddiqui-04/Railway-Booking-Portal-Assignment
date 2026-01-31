@@ -4,52 +4,59 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-
 generator client {
-provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
-
 
 datasource db {
-provider = "sqlite"
-url = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  email     String   @unique
+  email     String    @unique
   phone     String
   password  String
-  role      Role     @default(CLIENT)
-  status    Status   @default(ACTIVE)
+  role      Role      @default(CLIENT)
+  status    Status    @default(ACTIVE)
   bookings  Booking[]
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 }
 
 model Station {
-  id          Int     @id @default(autoincrement())
-  stationCode String  @unique
-  stationName String
-  city        String
-  status      Status  @default(ACTIVE)
-  routes      Route[]
+  id                Int      @id @default(autoincrement())
+  stationCode       String   @unique
+  stationName       String
+  city              String
+  status            Status   @default(ACTIVE)
+  createdAt         DateTime @default(now())
+  sourceTrains      Train[]  @relation("SourceStation")
+  destinationTrains Train[]  @relation("DestinationStation")
+  routes            Route[]
 }
 
 model Train {
-  id          Int     @id @default(autoincrement())
-  trainNumber String  @unique
-  trainName   String
-  status      Status  @default(ACTIVE)
-  routes      Route[]
-  coaches     Coach[]
-  seats       SeatAvailability[]
-  bookings    Booking[]
+  id                   Int      @id @default(autoincrement())
+  trainNumber          String   @unique
+  trainName            String
+  status               Status   @default(ACTIVE)
+  sourceStationId      Int
+  destinationStationId Int
+  runningDays          String // e.g. "MON,TUE,WED"
+  createdAt            DateTime @default(now())
+
+  sourceStation      Station            @relation("SourceStation", fields: [sourceStationId], references: [id])
+  destinationStation Station            @relation("DestinationStation", fields: [destinationStationId], references: [id])
+  routes             Route[]
+  coaches            Coach[]
+  seats              SeatAvailability[]
+  bookings           Booking[]
 }
 
 model Route {
-  id            Int      @id @default(autoincrement())
+  id            Int    @id @default(autoincrement())
   trainId       Int
   stationId     Int
   arrivalTime   String
@@ -61,7 +68,7 @@ model Route {
 }
 
 model Coach {
-  id           Int      @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   trainId      Int
   classType    ClassType
   seatCapacity Int
@@ -70,7 +77,7 @@ model Coach {
 }
 
 model SeatAvailability {
-  id             Int      @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   trainId        Int
   date           DateTime
   classType      ClassType
@@ -95,7 +102,7 @@ model Booking {
 }
 
 model Passenger {
-  id        Int     @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
   bookingId Int
   name      String
   age       Int

@@ -16,7 +16,8 @@ CREATE TABLE "Station" (
     "stationCode" TEXT NOT NULL,
     "stationName" TEXT NOT NULL,
     "city" TEXT NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'ACTIVE'
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- CreateTable
@@ -24,7 +25,13 @@ CREATE TABLE "Train" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "trainNumber" TEXT NOT NULL,
     "trainName" TEXT NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'ACTIVE'
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "sourceStationId" INTEGER NOT NULL,
+    "destinationStationId" INTEGER NOT NULL,
+    "runningDays" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Train_sourceStationId_fkey" FOREIGN KEY ("sourceStationId") REFERENCES "Station" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Train_destinationStationId_fkey" FOREIGN KEY ("destinationStationId") REFERENCES "Station" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
